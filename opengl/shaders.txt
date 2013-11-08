@@ -1,0 +1,170 @@
+client端可以通过以下方式传递数据给OpenGL shaders:
+1. attributes
+基于每个顶点， 通常的attributes有坐标，纹理坐标，颜色值，面法向量。
+attributes只能给vertex shader用， 而不能给fragment shader用。
+
+2. Uniforms
+基于每批数据， 可以是单个值，也可以是向量。既可以给vertex shader用，
+也可以给fragment shader用。
+
+3. Textures
+texture data可以被传递给vertex shader或者fragment shader使用。
+
+4. Outs
+out variable 被定义成一个shader stage的输出， 并作为下一个shader 
+stage的输入。
+------------------------------------------------------------------------
+
+<GLSL>
+GLSL只有4种类型的变量， bool, int, uint, float
+
+<向量>
+GLSL还支持vector类型，表示向量，这个向量只能是4种基本类型之一
+vec2, vec3, vec4表示浮点型的向量
+ivec2, ...
+uvec2, ...
+bvec2, ...
+那么，怎么去address向量中的元素呢？ 有三种 xyzw, rgba, stpq 分别对应了顶点
+坐标，颜色分量和纹理坐标。
+vVertexPos.xy = vec2(3.0f, 5.0f);
+实际上，只要是用的一组分量，可以在颜色，纹理，坐标等相互混用，但是不能多个组
+混用， 如vVertex.xt是非法的。
+向量也支持分量间位置的变换， 如vNewColor.bgra = vOldColor.rgba;
+向量类型被不只是在GLSL里built-in， 也在HW里built-in， 所以用向量能够提高效率。
+</向量>
+
+<矩阵>
+不同于向量，矩阵只支持浮点型。
+mat2, mat2x2
+mat3, mat3x3
+mat4, mat4x4
+mat2x3, mat2x4, mat3x2, mat3x4, mat4x2, mat4x3 记住前一个数字代表列数，后一个数字
+代表行数。。。！！ 这样设计有一个好处， 就是matrix[3]可以直接取出第4个列向量。
+vec4 vTranslation = mModelView[3];
+vec3 vTranslation = mModelView[3].xyz;
+mat4 vTransform = mat4(1.0f);  // 对角线上的元素都为1.0
+</矩阵>
+
+<存储修饰符>
+<none>  局部变量，外部不可见
+const   compile-time常量
+in		从前一个stage来的， 可以是client，也可以是上一个shader。 read-only
+in centroid   
+out		送到后一个stage, 会被HW进行插值，然后送给fragment shader。
+out centroid
+inout	可写也可读的变量，只是局部函数的参数类型，相当于可以修改值传出去。
+uniform  从client端发送过来的， 对于所有顶点都一样的东东。read-only
+</存储修饰符>
+
+默认情况下，参数会在shader stage之间进行透视的插值，可以显示定义不透视，也
+可以显式定义根本不要插值：
+smooth out vec3 vSmoothValue;	// 默认值
+flat out vec3 vFlatColor;		// 不插值
+noperspective float vLinearlySmoothed;	// 不透视
+
+当渲染一个基元时，比如三角形， 当三个顶点被顶点着色器处理完毕好以后，它们会
+被组装成三角形， 然后这个三角形会被hardware光栅化，这时HW会决定哪些在color
+buffer里的fragment会被叉叉， 然后就会启动一个像素着色器的实例去处理。最后像素
+着色器会输出一个vec4，或者ivec4等等， 然后这些值会被map到目标缓存所接受的范围。
+
+<Shader的加载>
+可以总结为 compiling, binding and linking:
+1.首先，让OPENGL给我们创建一个shader object的handle： 
+handle1 = glCreateShader(GL_VERTEX_SHADER);  handle2 = glCreateShader(GL_FRAGMENT_SHADER);
+然后我们就可以拿这两个handle去干事情咯。。。
+2.把shader source code给shader object：
+glShaderSource(GLuint handle, GLsizei count, const GLchar* const *string, 
+				const GLint *length);
+3.编译shader:
+glCompileShader(handle);
+每一个opengl实现都会有一个内置硬件厂商提供的GLSL编译器，所以这就使得SHADER适应
+自己的硬件，达到最好的效果。 OPENGL也提供了函数来测试shader的编译是否成功：
+glGetShaderiv(handle, GL_COMPILE_STATUS, &testVal);
+glGetShaderInfoLog(handle, 1024, NULL, infoLog); // 查询log信息
+
+4.Attach&Binding
+首先我们要创建一个shader program object:
+handle = glCreateProgram();
+glAttachShader(handle, handle1);
+glAttachShader(handle, handle2);
+然后，我们会bind attribute location到这个shader program object:
+glBindAttributeLocation(GLuint shaderProg, GLuint attribLocation, const GLchar *szAttributeName);
+如： glBindAttributeLocation(hProgObj, GLT_ATTRIBUTE_VERTEX, "vVertex");
+
+5.Linking the shaders
+glLinkProgram(hProgObj);
+glDeleteShader(handle1);
+glDeleteShader(handle2);
+在程序最后记得要glDeleteProgram(hProjObj);
+
+6.使用shader
+glUseProgram(hProgObj);
+</Shader的加载>
+
+当使用flat的attribute的时候，硬件不会去插值，并且默认将把最后一个顶点的值当作其他
+顶点的值。可以用glProvokingVertex(GL_FIRST_VERTEX_CONVENTION); 来将其改为第一个顶点的值。
+
+要使用uniform的时候，需要先locate这个uniform在shader中的位置：
+glGetUniformLocation(hProgObj, "mvpMatrix");
+设定传递uniform的值有三种方式： 标量， 向量， 矩阵
+glUniform3f(GLint location, GLfloat v0, GLfloat v1, GLfloat v2);  // 标量
+glUniform4iv(GLint location, GLuint count, GLint *v);  // 4个整型分量的数组，长度为count
+glUniformMatrix4fv(GLint location, GLuint count, GLboolean transpose,
+				const GLfloat *m);  // 4x4矩阵，count代表个数，m代表16个元素的数组
+									// 如果用的列优先， transpose置为GL_TRUE, 如果你用
+									// 其他数学库，矩阵是行优先的，那么设为GL_FALSE,
+									// 那么传递给shader的时候会自动转置为列优先
+记住在调用glUniform的时候，一定要确定在这之后到渲染之前不要再做跟这个uniform相关的变换，
+否则因为拷贝的是value，并不是传引用，所以不会作用到传到server端的uniform上而导致不一致。
+
+GLSL有很多内置的函数， 有数学浮点运算函数(cos, sin..)， 有向量函数(length,dot,corss..),
+矩阵函数(transpose, determinant, inverse...)，很多很多。。。
+
+<Lighting Model>
+<Diffuse Model>
+用一个float[4]的diffuse值来表示物体的material， 其进入眼睛的颜色强度决定于两个向量的点乘，
+即点到光源的方向和点的法向量(实际是点所在面的法向量)方向。
+Diffuse实际上模拟了光的方向性。
+</Diffuse Model>
+<ADS Model>
+用Ambient, Diffuse和Specular这三个float[4]来表示物体的材质，物体对这三种光有反射性，而
+光源也需要有这三种属性。
+
+-->Ambient表示均匀散布在空间中的颜色值，这个可以很好的模拟光源散布在环境中的光。
+vec3 vAmbientColor = vAmbientMaterial * vAmbientLight;
+
+-->Diffuse和Diffuse Model里面的东东一样。
+vec3 vDiffuseColor = vDiffuseMaterial * vDiffuseLight * fDotProduct;
+
+-->Specular模拟的是一种高亮度现象，一种物体表面垂直反射时的闪亮。它也先要找到光反射方向
+和法线的夹角的余弦值x，然后会依据一个shininess的值y, 求出x^y才是最后的角度比例：
+vec3 vSpecularColor = vSpecularMaterial * vSpecularLight * x ^ y;
+这个式子里，y值越大，x^y下降越快，高亮点就越小。
+最后vVertexColor = vAmbientColor + vDiffuseColor + vSpecularColor;
+在具体实现的时候，我们可以预先乘好材质和光照强度，这样就只用传递3个float[4]而不是6个。
+
+--> ADS Model的两个实现是Gouraud和Phong。
+Gouraud是在顶点着色器里计算出每个顶点颜色，从而让HW去线性插值颜色，像素着色器只需要将插值
+出的颜色输出出去就行了，这个算法快很多，但是由于颜色在表面的变化不是线性的(特别是如果
+有高亮成分的话，这是近似于指数级的变化)，所以用线性插值会产生不自然的现象。
+PHONG是在顶点着色器里计算出每个顶点的法向量，从而让HW去插值法向量，再在像素着色器里算出
+每个像素的颜色值。这个方法通过抓住ADS Model颜色变化的核心--法向量，来获得了很好的效果，
+但是计算量是蛮大的，不过当今HW肯定毫无压力啦。
+</ADS Model>
+</Lighting Model>
+
+<Texture>
+对于一般的texture的mapping，是很容易的，因为我们为每个顶点设立了TexCoordinate，这个纹理
+坐标会作为属性被HW插值，传给像素着色器，然后像素着色器用这个被插值好的纹理坐标去texture
+iamge上采样， 这个采样是根据client端设立的filter mode, mipmapping, wrap mode等来确定的。
+uniform sampler2D colorMap; // 纹理的handle
+vFragColor = texture(colorMap, vVaryingTexCoords.st);	// 采样
+</Texture>
+
+在像素着色器里面，可以用discard命令来表示这个像素我不画出来。比如我们可以用它来实现溶解
+的效果，在client端，设立一个阈值beta, 并每秒将这个阈值减小， 在server端，如果color.r<beta,
+那么我discard掉，随着时间的推移，阈值慢慢变小，那么画的像素越来越少，也就实现了吞噬。
+
+对于1D纹理，我们最常用的就是用其来实现一些离散的变化，如带状物体。。
+
+</GLSL>

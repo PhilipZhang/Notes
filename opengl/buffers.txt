@@ -1,0 +1,42 @@
+对于buffer的概念，和texture一样，OPENGL也在后台维护着大量的buffer objects,
+我们只需要调用API去创建和操作它们即可。注意，buffer是存在于显存里的
+
+1.创建buffer object:
+GLuint pixBuffObjs[1];
+glGenBuffers(1, pixBuffObjs);
+创建完了以后，可以用buffer target去绑定一个buffer：
+glBindBuffer(GL_PIXEL_PACK_BUFFER, pixBuffObjs[0]);
+当buffer使用完毕后，需要清理掉：
+glDeleteBuffers(1, pixBuffObjs);
+常用的buffer target有：
+GL_ARRAY_BUFFER
+数组缓存，用来存储顶点位置，颜色，纹理坐标等属性
+GL_COPY_READ_BUFFER
+作为glCopyBufferSubData的源buffer
+GL_COPY_WRITE_BUFFER
+作为glCopyBufferSubData的目标buffer
+GL_ELEMENT_ARRAY_BUFFER
+作为索引数组的缓存
+GL_PIXEL_PACK_BUFFER
+pixel pack操作(如glReadPixels)的目标缓存，
+GL_PIXEL_UNPACK_BUFFER
+pixel unpack的源缓存，尤其是texture update，如
+glTexImage2D, glTexSubImage1D...
+GL_TEXTURE_BUFFER
+对于shader可见的纹理缓存
+GL_UNIFORM_BUFFER
+对于shader可见的uniform缓存
+
+2.填充buffer
+glBindBuffer(GL_PIXEL_PACK_BUFFER, pixBuffObjs[0]);		// bind
+glBufferData(GL_PIXEL_PACK_BUFFER, size_in_bytes, pData, GL_DYNAMIC_COPY);
+glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);		// unbind
+注意glBufferData的最后一个参数是一个性能参数，它告诉OPENGL driver应该把
+这个buffer创建在什么位置， 这个buffer是经常被CPU使用还是不常被CPU使用(从而
+可以让GPU更大的加速)。
+你可以反复调用glBufferData，而且可以改变性能参数，数据源等等，但是每次调用
+前面buffer里的数据都会被删除。可以调用glBufferSubData来更换部分数据：
+void glBufferSubData(GLenum target, intptr offset, sizeiptr size, 
+					const void *data);
+对于glBufferSubData，你不能够改变usage， 因为只是部分更换，而不是重新建立。
+

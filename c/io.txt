@@ -1,0 +1,23 @@
+
+putchar()
+getchar()
+
+printf的格式控制：
+1. 负号， 表示输出左对齐。否则右对齐
+2. 小数点左边的数字表示整个输出的宽度，位数不够用空格填充。 小数点右边的数字表示精度。 
+
+scanf 格式输入
+可以从指定格式中读入数据
+返回EOF表示达到文件末尾  返回0表示与指定格式不匹配。
+
+
+sscanf 从字符串中格式输入
+
+文件操作：
+FILE结构定义在stdio.h中
+FILE *fopen(char *name, char *mode);
+int fclose(FILE *fp);
+int getc(FILE *fp);
+int putc(int c, FILE *fp);
+int fscanf(FILE *fp, char *format, ...);
+int fprintf(FILE *fp, char *format, ...);

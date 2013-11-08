@@ -1,0 +1,71 @@
+
+1. image data经常不是在内存里紧密排列的， 由于内存的word alignment机制。这样可以让
+当今大部分CPU更快的攫取blocks of data. 很多不压缩的图像格式同样遵循这个规矩， .bmp就
+是用的4-byte alignment。  但是.tga是1-byte aligned.
+opengl提供了接口来完成像素存储模式的设定。
+void glPixelStorei(GLenum pname, GLint param);
+pname  可以是GL_PACK_ALIGNMENT, 它对glReadPixels(从color buffer读像素)产生影响，
+表示将读到的像素存储到主存的打包形式。  也可以是GL_UNPACK_ALIGNMENT，它对
+glTexImage2D(根据内存像素生成纹理结构)等产生影响，表示如何解读目前主存中
+像素的排列。
+
+2. 对于一个texture的读取， 一般分为两步， 首先从disk上面把texture file读取到内存中，
+这个根据file的格式会有各种不同的读法，有时必要地需要一些辅助库。 第二步，指定响应
+的纹理格式，并将纹理的数据从内存中读到纹理结构中(glTexImagexD)。 对于1D和2D的纹理，
+也可以直接从color buffer中读取一个image当作纹理(glCopyTexImagexD)。
+
+3. 纹理的更新
+对于一个加载的纹理不再需要了，它可以被全部或者部分的替换，替换要比用glTexImage重新
+load一个新的纹理快的多。(glTexSubImagexD, glCopyTexSubImagexD)
+
+4. texture object
+opengl管理着多个纹理，并在它们之间进行切换。
+texture state 代表者一个texture image和一系列texture的属性。
+每一个texture由一个GLuint类型的handle唯一确定，在操作这个纹理之前，需要先绑定。
+glGenTextures(GLsizei n, GLUint *textures);		
+// opengl生成n个纹理对象的handle，并返回指针指向这些对象的handle，这个函数很轻量化
+// 它并不创建texture state，它只是生成一个索引而已。
+glDeleteTextures(GLsizei n, GLuint *textures);
+// 删除特定handle的texture object
+glBindTexture(GLenum target, GLuint texture);	
+// 绑定某个handle代表的texture， 第一次调用这个函数时OPENGL才会初始化object state
+
+5. texture parameters
+glTexParameterf(GLenum target, GLenum pname, GLfloat param);
+glTexParameteri(GLenum target, GLenum pname, GLint param);
+glTexParameterfv(GLenum target, GLenum pname, GLfloat* param);
+glTexParameteriv(GLenum target, GLenum pname, GLint* param);
+
+texture filter(纹理滤波):
+纹理的尺寸一般不会恰好匹配目标的尺寸，除非精心设计过。所以纹理大多数时候是要
+放大或者缩小的，这就是所谓的纹理滤波。一下是常用的两种滤波方式：
+GL_NEAREST: 直接按比例计算目标上某点的坐标映射到纹理上的坐标，看这个坐标在哪个
+			texel上面。这是最快的滤波方式。会产生块状效果。
+GL_LINEAR:  线性滤波是计算出纹理坐标以后，通过加权平均该坐标周围的texel来得到最
+			后的值。该方式虽然比上一种慢，但是当今的HW几乎看不出来。该方式会产生
+			模糊效果。
+glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); // 双线性插值
+glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR); // 三线性插值
+
+texture wrap:
+当纹理坐标超出0-1的范围，OPENGL会根据GL_TEXTURE_WRAP_..来处理。
+
+mipmapping:(多级纹理)
+使用mipmapping可以解决闪烁问题，也可以在实际MAP TEXTURE的时候用最接近尺寸的而不用
+用原始大小。但是mipmapping load进内存的大小要比单张图片高1/3左右。
+要使用mipmapping须在glTexImage时将level设置为需要的mip level, 而且需要在filter里
+指明用MIPMAP的filter。
+mipmapping需要事先把所有level的图片都准备好，OPENGL也提供了相应的函数来生成这些图片：
+void glGenerateMipmap(GLenum target); 当然为了性能考虑最好是先将这些picture生成，不要
+在运行时生成。
+
+各向异性过滤：
+这是一个新型的过滤技术，为的是处理在视角发生变化时，采样区域根据视角变化而变化。传统
+同性过滤是直接取方形区域来过滤，而异性过滤是在某些方向因为视角关系而变得拉伸或缩短时，
+过滤区域也随之拉伸或缩短。
+
+纹理压缩：
+虽然JPEG等格式压缩了图像，但是那只是解决了在硬盘里的空间问题，不会对内存中的texture产生
+任何压缩作用。 OPENGL提供了一系列压缩的格式，可以让OPENGL帮助你将load进来的texture进行压缩，
+以便在显存里占用更少空间，在texture切换时也更快了。

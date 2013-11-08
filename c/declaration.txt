@@ -1,0 +1,19 @@
+
+C中的声明由于可以将一些type自己复合， 如指向返回函数指针的函数等，因此在分析其实际type时候
+经常会出错。下面的几步可以分析任意复杂的声明：
+1. 从左到右找到第一个标志符，记作mark
+2. 看mark右边有没有(), []， 若右边为(), 则翻译为mark is a function returning...,
+若右边为[], 则翻译为mark is a array of..., 然后再看mark左边有没有*, 若有，则翻译为
+... is a pointer of
+3. 若有括号，则需要满足括号中的优先翻译。
+4. 对于修饰符const, volatile, 若修饰符在type specifier两侧的话表示这个类型的常量，
+若修饰符紧跟*, 则表示指针为常量。
+
+
+C中的typedef和define有本质区别
+typedef将被解析为一个完全封装好的类型， 而define只是按定义展开，如：
+#typedef int* ptr
+#define int* ptr1
+
+则 ptr a,b中 a和b都是指针类型
+而 ptr1 a,b 中， a为指针，b为整型

@@ -1,0 +1,37 @@
+实数的浮点数表示：
+precision 			sign 	exponent 	mantissa
+single 				1 		8 			23
+double 				1 		11 			52
+long-double 		1 		15 			64
+
+<IEEE Floating point standard>
+normalized IEEE floating point number:  
++(-)1.bbb..b * 2^p   其中p由exponent里的0和1表示，如double的p可以-1024～+1023,
+注意，normalized 表示中必须首位为1,后面接52个尾数。 
+这样一个表示就将一个实数切成了两块，一个是fl(x)，表示这个浮点数能表示的部分，而52位尾数
+以后的部分就被truncate掉了，这里可能是chopping或rounding，chopping就是简单的舍弃52位以后的位，
+但是这种方法不科学。rounding指被cut掉的部分可能会引起进位，IEEE中的进位的标准是
+若第52位为1,则只看第53位是否为1,是则进位，否则不进。 若第52位为0,则需要第53位为0,且后面位
+中至少有一个1才进位。
+</IEEE Floating point standard>
+
+<Machine epsilon>
+epsilon的定义是1和离它最近的浮点数之间的距离。 对于IEEE的浮点数标准来说，epsilon=2^-52。
+spsilon可以用来衡量一个浮点数表示标准的相对误差，即|fl(x)-x|/|x| <= 1/2eps，即真实值与浮点表示之间的距离
+与真实值的比值不超过1/2eps。
+</Machine epsilon>
+
+<Machine representation>
+对于浮点数的机器表示，基本遵循IEEE的标准，但是也有一定的改动，用来更方便的在机器上操作浮点数。
+exponent bias， 举double的例，它的指数由11位2进制数表示，normalized化的浮点数的指数可以取-1022~+1023，
+而将其加上1023的偏移，变为正数，且在1~2046之间，这种表示在MATLAB中可以用format hex来得到。而指数2047用来表示
+正无穷，负无穷和NAN，分别通过不同的符号位和尾数来判别。
+指数0(注意不是实际的指数0,而是加了偏移量以后的)就比较特殊了，它用来将能表示的小数位数扩大，当指数为0时，
+浮点表示形式的第一位可以不为0，这样最小的数就成了0.0000....01*2^-1022也就是2^-1074。正负零也是这种non-normalized表示。
+</Machine representation>
+
+<Loss of significance>
+非常接近的数相减会造成很多位的有效数字丢失，因此如果在相减后还要做其他操作，需要设法转换形式，否则算出的结果不准。
+比如： (1-cosx)/(sinx)^2在X接近0的时候
+	   a - sqrt(a^2 + b^2)， 当a十分大，b相对较小时(比如求二次方程根的时候)
+</Loss of significance>

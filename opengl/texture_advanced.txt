@@ -1,0 +1,73 @@
+texture target: GL_TEXTURE_1D, GL_TEXTURE_2D, GL_TEXTURE_3D, GL_TEXTURE_RECTANGLE,
+GL_TEXTURE_CUBE_MAP,
+1. 矩形纹理
+矩形纹理不能用多级纹理mipmap， 而且它的纹理坐标系没有归一化，直接用pixel的位置
+来反映它的坐标。而且纹理不能repeat，也不支持纹理压缩。
+矩形纹理主要用来显示图片，并且硬件处理它会更快。
+这个矩形纹理的用法只需要把相应的texture target改成GL_TEXTURE_RECTANGLE即可，同时记得
+纹理坐标用像素坐标代替。还有像素着色器中sampler2D改为samplerRect就OK。
+
+2. Cube Map
+CUBE MAP是用六个2D的纹理拼凑而成的一个方体纹理，它的纹理坐标用标准化的方向来唯一确定，
+比如(根号2/2， 根号2/2， 0）这个方向来表示某个纹理点。这个方向和立方体交点则是对应的纹理
+点。
+glGenTextures(1, &handle);
+glBindTexture(GL_TEXTURE_CUBE_MAP, handle);
+glParameteri(GL_TEXTURE_CUBE_MAP,...)
+...
+for i = 0 ~ 5;
+glTexImage2D(....);
+Cube Map可以用来做SkyBox，只要把一个cube的点转化成归一化的方向向量即可得到其对应的纹理
+坐标。在pixel shader里把sampler2D改为samplerCube。注意这里的纹理坐标不再是vec2而是vec3。
+Cube Map还可以用来做一个物体反射包围它的环境这种现象。 需要在vertex shader里面将眼睛
+和点的连线沿着法向反射(reflcet内置函数)， 并且用反view矩阵，返回到世界坐标系中， 然后
+归一化即得到了纹理坐标。
+
+3. MultiTexture
+OpenGL支持多个纹理贴图到一个物体上面。
+用glBindTexture(target, id); 来绑定特定的texture， 然后可以对它进行各种属性操作以及load操作。
+在传递uniform的时候把texture的ID传给fragment shader就可，这样他就可以对不同的texture进行
+采样了。
+
+4. 点精灵
+OPENGL支持点精灵， 即用一个2D纹理贴图贴到点上面。点的尺寸可以固定，用glPointSize(10)...
+或者可以编程决定glEnable(GL_PROGRAM_POINT_SIZE), 这样可以让点的尺寸随着跟眼睛的距离大小
+而发生变化。
+PS： 假设我用一个方形的纹理，中间有个圆形亮点，用来代表点精灵，而周围是黑色，然后我想在
+场景中渲染大量的点，那么我不能让纹理黑色的背景遮住亮点，所以需要用融合，怎么融合才好呢？
+那就是用GLBlendFunc(GL_ONE, GL_ONE)， 我把目标缓存和源缓存的颜色加起来，就保证黑色不会遮挡
+了，因为黑色值为0，在加中不起作用。 同时，为了性能考虑，需要把深度缓存给关了，防止它对我的
+z-buffer进行排序(大量点进行排序是time consuming的)。
+gl_PointCoord 是fragment shader里内置的变量，用来记录点精灵中插值出的该点的纹理坐标。
+glPointParameteri(GL_POINT_SPRITE_COORD_ORIGIN, GL_LOWER_LEFT)可以将点精灵坐标系的原点
+设置到左下角(默认是左上角)。
+我们可以根据discard特性， 自行设计一些点精灵的形状
+点精灵也可以根据需求旋转(在vertex shader或者pixel shader里乘以一个2维旋转矩阵)
+
+5. bump mapping
+bump mapping是一种用来模拟物体表面的凹凸的方法，它维持了该物体的几何信息. 一般有两种实现方法：
+1.位移映射：根据一张height map来记录其凹凸的位移，然后通过计算，得到在维持物体几何信息不变的情况下，
+法向量应该变为多少。
+2.normal mapping： 直接用RGB三通道的图像来表示法向量的x,y,z，从而进行映射
+
+6. Texture Array
+target变成了GL_TEXTURE_2D_ARRAY
+glGenTextures(1, &moonTex);
+glBindTexture(GL_TEXTURE_2D_ARRAY, moonTex);
+glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+但是对于load image data, 2D的texture array需要用glTexImage3D, 用depth参数
+来表示数组大小。
+对于glTexImageXD, 如果我们把最后一个data参数设置为NULL， 则OPENGL server
+会预留memory给我们的texture，然后我们可以用glTexSubImageXD来更新我们的
+texutre。如：
+glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA, 64, 64, 29, 0, GL_RGBA, 
+GL_UNSIGNED_BYTE, NULL)将会预留29个teximage的大小给我们。
+然后我们会循环调用glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, i, 64,
+64, 1, GL_RGBA, GL_UNSIGNED_BYTE, pBits);
+
+7. Texture Proxies
+OPENGL提供了texture proxy，为的是不用内存去存放image，但是可以给程序员
+query各种对texture的support，如：
+glTexImage2D(GL_PROXY_TEXTURE_2D, 0, GL_RGBA, 2048, 4096, 0, GL_RGBA,
+GL_UNSIGNED_BYTE, NULL);
+glGetTexLevelParameter(GL_PROXY_TEXTURE_2D, 0, GL_TEXUTRE_HEIGHT, &height);

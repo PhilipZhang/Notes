@@ -1,0 +1,66 @@
+当今的GPU都是采用流水线+并行的方式进行渲染， 这样可以提高
+处理器的效率和图形渲染的速度(具体可参照计算机体系结构里的
+思想)。
+
+<Stage Level>
+
+整个的3D渲染可以从三个层次来看：
+Conceptual Stages:  Application Stage, Geometry Stage, Rasterization Stage  抽象层
+Function Stage: 比如Transform Stage, Projection Stage, Clipping Stage 半抽象层
+Pipeline Stage: 比如用一个每个Conceptual Stage可以包含若干pipeline stage.
+				而function stage和pipeline stage是多对多的关系。
+
+</Stage Level>
+
+<Conceptual Stages>
+
+对于Application Stage, 一般做一些依靠GPU来实现的东东，比如碰转检测，全局加速算法，动画
+等，它的任务是设定一些状态来指导固定管线(可配置管线)的工作，并将最终的几何单元输出到GPU.
+
+对于Geometry Stage, 它主要是完成一些基于基元的变换，光照，投影，裁剪等工作，它根据输入的变换
+矩阵进行逐顶点的几何变换，并且根据光照模型，进行逐顶点的着色，然后通过投影变换，将三维世界
+变换到一个[-1,+1]的方体内，其中z方向的值将存入z-buffer,然后对一半在内一半在外的图形进行裁剪。
+最后按基元(包含位置，颜色，纹理，法向量等信息)输出到Rasterization Stage.
+
+对于Rasterization Stage, 它首先接收输入的基元，并进行scan conversion, 确定哪些像素在基元内，并
+对位置，颜色，纹理，法向量等进行插值计算，并根据渲染状态，进行纹理映射等工作，如果
+开启了混合，还会根据z-buffer进行排序，然后从远到近画。最终输出到frame buffer。
+
+</Conceptual Stages>
+
+<着色器>
+
+流处理器是一个generic的shader，在特定需求下可以转化为特定
+的shader，所以GPU中流处理器很多的话，可以由几个一组形成
+流水线，并且大量并行。
+一个流处理器就代表了一个pipeline stage，比如顶点着色器就集成了多个function stage.
+
+常见的着色器类型：
+1. 顶点着色器
+顶点着色器是一个由着色器语言编写，并可以被编译成二进制
+在GPU上执行的东东。 GPU每接受到一个顶点就会调用顶点着色
+器对其进行处理。 处理的过程包括将3D坐标转化为2D坐标(包含
+z-buffer)，调用光照模型进行着色，进行纹理坐标的计算等，
+但是顶点着色器不能新产生点。
+2. 几何着色器(geometry shader)
+这是一个新型的着色器，在D3D10和OPENGL3.2中引进，OPENGL2.0+
+也可以通过extension的机制来使用。 这种着色器可以根据输入的
+图元生成新的图元，如点，线，三角形等。 比如，当处理三角形
+时，几何着色器的输入是三个点，这种着色器就可以输出0个或多个
+三角形。几何着色器的常见使用有点精灵生成等等。。
+3. 像素着色器(pixel shader or fragment shader)
+基于像素进行着色。可以进行bump mapping, shadows, specular
+hightlights等等。 按理说单一像素是没啥作为的，但是由于这个
+像素着色器可以接收经过插值的点的属性，因此变得异常强大。
+
+</着色器>
+
+
+OpenGL Client-Server模型
+对于一个调用OPENGL API的程序，它的client端就是运行在CPU里的代码
+和在主存里的数据(包括驱动)， 而server端是GPU和显存。在这个模型中，
+client端不断通过驱动来把blocks of data & commands产生到buffer中，
+server通过读取buffer中的数据和命令，然后执行命令，当一条命令执行
+完毕，下一条命令又被读入了进来。通过client和server端的并发执行来
+提高处理的效率。我们希望的最完美的情况是CPU和GPU的吞吐量一致，来
+让任意一方都不闲下来。

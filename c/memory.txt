@@ -1,0 +1,28 @@
+
+---------------------------Linux Memory Model----------------------
+Logical Address -- (segmented unit) --> Linear Address --
+(Paging unit) --> Physical address
+
+数据段，程序段等只是程序的组织方式，这里的段和内存管理里的段是两个东西，
+内存管理里的段只是内存由逻辑内存映射到线性内存的表达方式。
+
+
+现代的计算机架构都要求数据的排列，即数据所在的位置必须为其size的倍数，这样
+做有很多好处，一是在寻址的时候只用偏移固定倍数，而且也防止了因为访问一个数据
+而跨页的情况。
+
+
+一些常见的error:
+1. bus error:   破坏了数据的排列， 如：
+union
+{
+	char a[10];
+	int c;
+}u;
+int *p = &(u.a[1]);
+*p = 3;
+
+
+2. segmentation fault:
+通常是解引用了非法的地址，如NULL, 或者不属于程序的地址空间。或者是stack和heap的空间
+伸展过分。

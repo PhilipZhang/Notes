@@ -1,0 +1,5 @@
+1. 什么是daemon与服务
+
+2. 解析super daemon的配置文件
+
+3. 服务的防火墙管理, xinetd, TCP wrappers

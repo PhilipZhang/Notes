@@ -1,0 +1,45 @@
+1. 帐号管理
+几个重要的文件:
+/etc/passwd: 存储账户名，UID，GID，家目录以及shell
+/etc/group: 存储组名字和GID
+/etc/shadow: 存储账户密码相关信息
+/etc/gshadow: 存储组密码相关信息
+/etc/skel: 存储默认家目录的内容
+/etc/default/useradd: 设定默认的shell,skel,group等内容
+/etc/login.defs: 设定邮件目录，密码相关限制，GID与UID限制，是否建立家目录等
+
+几个重要命令:
+groupadd
+groupdel
+useradd
+userdel(只有在确定要删除该用户的相关数据时才用，如果只是暂时不用可以去上面的几个文件里改)
+chsh: 改变shell
+chfn: 设置用户的一些电话之类的信息，这个会改变passwd里的描述信息
+passwd [username] 设置密码
+
+对于密码的设定，应该包含特殊字符，而且长度应该大一点，以防止字典攻击法，而且这样也可以让暴力攻击法消耗相当长的时间
+
+2. 使用者身份切换
+如果只是想要以root的身份去运行某个执行档或者是观看文件，用sudo即可，这个命令是输入本用户密码，这样可以不泄露
+root的密码，防止不必要的攻击。 但是如果需要以root的身份环境来运行，则需要su
+
+3. 使用者查询
+(1) id [username]  查询UID，GID以及组名
+(2) finger [username] 列出用户电话等信息 不常用
+(3) groups [username] 查询用户所在群组
+
+4. 手动添加用户(可以添加数字帐号，也可以添加POP3帐号)
+(1) 添加数字帐号 : 
+        1. 先建立所需要群组 (vi /etc/group)
+        2. 建立帐号的各个属性 (vi /etc/passwd)
+        3. 将passwd与shadow同步化 (pwconv)
+        4. 建立该帐号的密码  (passwd account)
+        5. 建立用户家目录  (cp -r /etc/skel /home/account)
+        6. 更改家目录的属性 (chown -R account;  chgrp /home/account)
+(2) 添加POP3邮件帐号
+        我是一台邮件主机，我不要用户使用FTP，TELNET，SSH的话，只允许对方使用POP3
+        基本原理是这样的：由于不需要让这个帐号由其他服务登入主机，所以在shell的地方改成了/bin/false
+                          由于不许要这个帐号的登入，所以家目录也可以不用建立
+        1. 建立帐号的各个属性
+        2. 同步passwd与shadow
+        3. 设置密码

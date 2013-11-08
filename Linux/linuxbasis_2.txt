@@ -1,0 +1,29 @@
+[root@test home] root指当前用户，test为主机名, home为当前目录
+Linux用UID与GID记录用户身份  /etc/passwd 可以看到root两个ID都为0   一般用户ID都在500以后。
+exit命令是退出用户登录， 而不是关机， 退出登录后系统还有很多工作在做。
+CTRL+ALT+F1~F7: 在文字界面及图形界面切换
+
+date: 显示日期
+cal [month][year]: 显示日历
+bc: 简单计算器  quit推出  sacle=N 保留几位小数
+
+sudo apt-get install fontmatrix   安装字体管理软件fontmatrix
+字体可以下载文泉译正黑 linux下的字体格式是ttf的， ttc的可以直接改后缀名为ttf
+
+可以通过命令 gsettings set org.gnome.gedit.preferences.encodings auto-detected "['UTF-8','GB18030','GB2312','GBK','BIG5','CURRENT','UTF-16']"
+来设置gedit自动检测上述编码格式
+
+可以vi /.vimrc  在里面添加set fileencondings=utf-8,gbk来让vim自动检测国标与UTF-8
+
+在线帮助: man date     man page 放在 /usr/share/man里
+info date   usr/share/doc	
+
+who
+netstat -a
+ps -aux
+
+sync     将内存中尚未写入硬盘的数据同步到硬盘
+shutdown 最正确的关机指令， 可以用来关机， 重启， 发出警告信等等
+reboot
+halt
+

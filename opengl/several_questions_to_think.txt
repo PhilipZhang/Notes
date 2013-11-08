@@ -1,0 +1,8 @@
+1. How does OpenGL run on a support device?
+2. How does a 3D object in OpenGL be displayed on screen?
+3. What's the representation of a 3D object in OpenGL?	 points, lines, triangles..
+4. What's the essence of transformations in OpenGL?   A(3x3)  A(4x4).. projection, translation, rotation, shear, scale....
+5. When you're rendering something, what are the states that you should consider?  glEnable, glDisable.    depth test, cull test, z-fighting, blending...   
+6. What jobs do different shaders take?(OpenGL independent) And how can you load a shader in OpenGL?(compiling, binding, linking and load by handle)
+7. What's the interface of resources in OpenGL(shader, texture, buffer...) ---- handle to user(convenient and easy to use), but it's really some complex structures under opengl core code.
+8. Some popular lighting models?  Diffuse model, ADS Phong, ADS Gouraud

@@ -1,0 +1,47 @@
+<Permissions>
+html 644 	let world people can read the html files
+gif, jpg, css, js, png.. resources should also be 644.
+php 600   不需要readable by公众，因为suphp等解析器会利用超级用户身份去解析php文件最后生成
+			public readable的html文件等。
+
+dir 711  因为需要cd进入文件夹， 如果还要提供文件LIST的功能给USER，那么就得755
+</Permissions>
+
+<地址>
+1. mod_rewrite 	对客户端request的URL，可以先在server端经过一层mapping，再导成正确的URL进行解析。
+这样可以将一些带参数的URL美化。如lecture/?n=1改成lecture/1
+2. 绝对地址和相对地址。在URL里，绝对地址是指http://www.example.com/pictures/pic1.html这样的地址，
+而相对地址是指相对于当前浏览器加载页面所在目录的地址，如当前所在地址为pic1.html,则
+href="pic2.html"表示当前目录pictures下的pic2.html文件。也可以href="/pictures/pic2.html"表示
+从网站根目录开始而到达的pic2.html。若要表示上一级路径，可以href="../stories/story1.html"。
+3. 在开发网站时，PHP里函数需要用的文件路径是server实际的物理路径，而由于mod_rewrite机制的存在，
+客户端的URL中的路径可能会跟实际路径不一样。
+</地址>
+
+<MVC>
+1. 直接一个整个完整的HTML
+2. 将header和footer写两个template, header.php, footer.php，但是每个page的title和footer都需要
+一样，否则就得写N个，失去了模版的意义。总之不灵活。
+3. 将header和footer的包含用php函数的形式，这样renderHender(),renderFooter()就可以根据所传
+的参数而动态的改变HEADER和FOOTER。
+4. 如果我不只需要Header和Footer的模版，我还需要右上Header，右下Footer等等。。那么3中的方法
+就要在每个PHP页面调用N多个render子方法，冗余。 那么可以写一个generic的render()方法，
+第一个参数为template，表示具体render的是Header还是Footer，第2个参数对应它render需要的信息。
+5. 将public的html,css,php等文件放到world accessible的文件夹，一些辅助函数，模版，数据等等
+放到其他不是public的文件夹。
+6. 将public的文件做成一个controller，根据需求的page的不同，分别对它们进行render。而
+所有的实际页面都放在一个views的文件夹。这样不用在每个php里都去render(header, xxx), render(footer,xxx)。所有的整体逻辑都在这一个文件里，所以可以很方便地去管理它们。
+
+7.**  在MVC里，由于网站根目录下的文件只有controller，而用户的URL所request的页面都是一些lecture.php
+等内容相关的，所以需要对用户的url request做一层映射，使之映射成服务器端的物理地址，好在PHP代码
+里给require进来。这样既保证了MVC，又保证了用户能够访问到所需要的页面。
+</MVC>
+
+<XML>
+1. xml element
+2. xml attributes  注意，attributes不具有扩展性，所以在设计的时候需要注意，因为设计为子元素的话
+是可以进一步扩展的。
+3. xml entities   一些特殊字符，符号等。。。
+4. dom 		将XML文件表示成树状结构。 如php里的函数simplexml_load_file()就把xml文件读入到内存
+中，形成一个树状的dom结构。
+</XML>

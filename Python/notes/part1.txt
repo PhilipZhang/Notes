@@ -1,0 +1,29 @@
+<Introduction>
+1. byte code, portable, but not as fast as compiled code.
+2. scripting feature makes it fast to develop, and glue features makes it integrate other languages or be integrated by other languages.
+3. What can be done with Python?  Systems Programming, GUIs, internet scripting, component integration, database programming
+4. Python supports both OOP and Proceduarl programming.
+</Introduction>
+
+<How Python Runs Programs>
+1. Python Intepretor: program that translates your code into machine language.
+2. Byte code compilation, byte code is a lower-level, platform-independent representation.
+3. PVM(Python Virtual Machine) runtime engine of Python, but is just a big loop that
+iterates through byte code instructions.
+4. All python has is run time, no compile time to programmers.
+5. Variations of Python:
+	They are just different implementations of python language.
+	1) CPython, implenment the .py-->.pyc-->PVM routine, can script C and C++ components.
+	2) Jython, python intepretor has java classes that compile python code to java byte code, and 
+	then route the resulting byte code to the JVM.   so .py-->java byte code-->JVM.  Can script
+	Java applications and be called by java applications too.
+	3) IronPython, integrate with .NET things.
+6. Frozen binaries: turn python code into binaries, but are not the same as the true compiler-linker
+process, becuase the Python intepretor is embedded in it, and run byte code through PVM.
+</How Python Runs Programs>
+<How you run Python>
+1. just type 'python' in shell, then go into interactive python env.
+2. import(statement) means integrate another module and one module can only be imported once 
+a session, and reload(function) means maybe some module changed since last import, 
+so should be dynamicallyreloaded, and reload function can only take a name of already loaded module.
+</How you run Python>

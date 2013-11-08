@@ -1,0 +1,13 @@
+1. compress:  最老的压缩软件  压缩后的文件为*.Z
+2. gzip, zcat:  gzip是GUN用来取代compress的更强大的压缩与解压缩软件, 压缩后的
+文件为*.gz,也可解压*.Z的文件。 -d 解压 -数字 压缩比，越大压缩得越狠，但是时间越
+长。  zcat可以用来看compress与gzip的压缩文件。
+3. bzip2, bzcat:   bzip2 -z为压缩 -d为解压缩  扩展名为.bz2  可解压.bz, .bz2,
+.tbz, .tbz2等格式的压缩文件.  bzcat可以用来查看bzip2压缩过的文件 
+4. tar: 将打包与压缩整合为一体的软件。 同时具有打包功能和gzip的压缩功能
+        -z 是否同时具有gzip的属性  -x 解压缩  -t 查看tarfile里的档案
+        -c 建立一个压缩文件案  -f 使用档案名 档案名必须紧跟其后
+        -N 只打包比此日期更新日期的文件(在备份时常用)
+        一般纯打包后缀名取 *.tar, 若用了gzip压缩 则取 *.tar.gz
+5. .7z:  7za  
+6. .rar: unrar

@@ -1,0 +1,49 @@
+1. 关于断点的命令
+awatch [某变量表达式]  为一个表达式设置观察点，该表达式被读写时程序会停止运行
+watch [某变量表达式] 跟awatch用法相同，但是打印信息不同
+break  [行号]  为某行设置断点
+clear [行号]   清楚该行断点
+commands [断点号]  遇到断点执行某命令
+condition [断点编号] [条件表达式]  满足某条件时才在该断点上停止
+delete [断电编号]  删除该编号的断点
+disable [断点编号]
+enable [断点编号]
+tbreak [行号]  临时断点，只起一次作用
+
+2.关于数据的命令(类似VS中的watch窗口)
+display [要显示值的表达式]  每当程序运行到断点处，都会显示该表达式的值。
+undisplay [观察标号]  从观察列表中删除
+info display 显示观察列表
+delete display [观察标号]  和undisplay类似
+disable display [观察标号]  暂时失效
+enable display
+whatis [表达式] || ptype 表达式  该表达式的类型
+print [表达式] 打印表达式的值， 也可以在DEBUG过程中修改表达式的值
+set 用处很多
+
+3.关于文件的命令
+add-shared-symbol-files
+add-symbol-file
+cd
+directory   增加源文件的搜索路径
+file   载入文件的符号表
+list 显示文件具体内容
+forward   向下查找某字符串
+reverse-search    向上查找某字符串
+
+
+4. 关于程序运行的命令
+cont [忽略次数]  程序从断点处继续执行，并忽略该断点N次
+jump [行号或地址]  直接运行到某行号或地址，忽略其中的断点
+kill 结束程序调试
+next [步数]  向前执行的步数，跳过子程序调用
+nexti 单步，且跟踪到子程序内部
+step 单步，跳过子程序调用
+stepi 单步，不跳过子程序调用
+
+5. 关于堆栈
+backtrace,
+frame
+select-frame
+
+6. 图形化的gdb---ddd

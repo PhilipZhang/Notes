@@ -1,0 +1,26 @@
+<HTTP协议>
+http是一个基于TCP/IP的应用层的协议。
+首先客户端浏览器将用户请求的页面封装一个http request header，这个header里面有
+若干关键的key-value pair,比如是GET还是POST，比如host是google.com还是baidu.com，
+比如发送的内容加密与否，接受哪些格式的压缩，cookie等。
+然后服务器通过解析HTTP HEADER，明白客户端的需求和属性，然后将客户端需要的页面等
+信息传回给客户端。当然这里服务器也会在返回的页面外嵌一层header信息，表明一些传过来
+的数据格式，以及服务器信息等。
+注意，HTTP是stateless的，即服务器数据传输完成以后立即断开链接(减少服务器的负载)。
+因此需要一些辅助的信息如SESSON，COOKIE等来维持客户端与服务器之间的一个会话状态。
+</HTTP协议>
+
+<域名>
+域名可以理解为一个machine的外号，machine的名字即是它的IP。通过域名来记住一个
+machine比通过IP来要容易太多，而且IP经常会变，而域名很少变。
+
+域名解析的过程，主要是首先在LOCAL MACHINE上的HOST文件里(linux是/etc/host)找域名和
+IP的pair，如果存在，则停止解析，直接用这个IP(如localhost对应127.0.0.1)。也可以通过
+自行修改host里的pair对来达到一些目的，如在本机上模拟web hosting的机制，将多个不同域名
+映射到127.0.0.1，然后通过HTTP GET里的host字段来区分它们，这样，在web server里面就可以
+用这些不同的域名映射到不同的项目目录，即在本机上模拟出了virtual hosting的效果。
+
+经过了LOCAL的HOST文件，如果没找到，则去寻找配置好的DNS SERVER(一般是ISP)上有木有相关条目，
+然后会这样递归的去查询，比如先查找到.com的DNS server， 然后返回其地址，然后再根据这个地址
+去找baidu.com的DNS server，这样一直下去。。。
+</域名>

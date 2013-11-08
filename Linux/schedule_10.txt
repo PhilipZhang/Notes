@@ -1,0 +1,25 @@
+例行性命令分为两种: 1次性的命令和周期性的命令
+Linux系统的例行性命令也有很多，如
+1.数据轮替(周期性的备份当前LOG文件，并开启一个新文件，以免一个LOG文件太大)
+2.各种数据库的update(如locate, dpkg等等)
+3.定时进行程序分析，若有僵尸程序，则将其删去
+4.登录档视察
+。。等等
+
+
+自己编写例行性命令:
+1. at
+at就是atd这个服务
+首先确定服务开启， 然后到/etc下去看at.allow或者at.deny,确定用户被允许使用at
+被添加的例行命令被添加到了 /var/spool/cron/atjobs 里面
+
+2. crontab
+用来编辑crontab file的一个运行档
+每个用户会有一个专门的crontab file， 上面记录者例行的命令
+crontab -e  编辑
+crontab -l 列出这个文件的内容
+crontab -r 移除这个文件
+例行的格式：  __ __ __ __ __  command  分别是分，小时，年，月，日。
+
+用户用crontab -e 来添加的命令会添加到 /var/spool/cron   而系统的例行命令在/etc/crontab中，
+系统每分钟会去读一下这两个文件下的工作事项。

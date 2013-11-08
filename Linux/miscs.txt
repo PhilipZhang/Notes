@@ -1,0 +1,19 @@
+在命令行下乱码： 装zhcon软件。
+在/etc/default/rcS里有个TMPTIME， 可以设置删除/tmp文件夹的频率
+当文件格式不对以致乱码时，可以用iconv命令或者用gedit save as,
+用file -bi [filename] 可以查询当前编码
+
+
+------------显示相关-------------
+安装NVIDIA显卡可以从官网下载下来.run文件，然后切换到文字界面，再
+sudo service lightdm stop， 但是这样还不够， 因为nouveau显卡驱动
+与N卡的显卡驱动安装有冲突，需要先禁掉，所以需要在/etc/modprobe.d/
+目录下添加一个配置文件将nouveau拉进模块加载黑名单，所以它在开机的
+时候就不会被加载，这样我们就可以在文字界面安装NVIDIA驱动了。安装过程
+中会问你要不要装OPENGL的库，选择安装则可以安装到很新的库。
+另外hwinfo这个小工具可以帮助我们看我们的显卡支持哪些分辨率。
+还有对于splash screen和grub的分辨率问题，可以在/etc/default/grub文件下
+进行更改，注意这些需要先在hwinfo软件下看哪些分辨率是被支持的。
+对于N卡会默认弄一个splash screen，这个很不友好，我们可以通过修改
+/etc/X11/xorg.conf文件下的Section "Device"下的Option "NoLogo" "True"
+来禁用掉它。

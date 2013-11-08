@@ -1,0 +1,53 @@
+
+size
+objdump
+...     可以查看一个可执行文件的信息，包括段信息等等。。。
+
+一个二进制文件,以a.out举例，包含如下信息：
+exec header  包含一些让内核加载它的辅助信息，如一些对库的引用信息。
+text segment 机器码
+data segment 包含被初始化的全局和静态变量
+data relocation segment  -- .rodata  记录数据区重定位的信息
+symbol table 符号表， string-address的map，被ld用来在整合时得到正确的runtime address。
+string table
+a.out文件的大小还与其是否包含了debug信息有关。
+a.out文件还包含了很多其他东西
+注意: bss segment 并没有写进a.out， 因为其初始化都为0， 所以只要在程序运行前在内存里给
+出就行，  a.out文件里只是specify出了它需要的大小。
+
+
+一个进程的空间大概像如下分配：
+Hole            --- protected area
+Text segment    --- 代码段
+Data segment    --- 数据段，包括bss
+
+Heap
+
+Stack
+
+-----------------------------------------relocation----------------------------------------
+一个目标文件有很多section, 如code, data, .bss等，当linker链接它们时，需要把它们相似的段进行
+合并，在这个期间，某些在符号表中的符号的地址就需要被改变来指向运行时的正确位置(因为每个目标
+文件中的地址都是绝对的的，最后要整合成运行时的绝对地址)，这些步骤都是基于一个叫做relocation
+table的数据结构来实现的。对于可运行程序，它的所有的地址都是修复好的了，那么唯一需要考虑的就是
+动态链接进来的库了，所以可以选择动态链接加载进内存的时候进行修复，也可以让其在编译时候就生成
+PIC。这就和linker一章讲的PIC就对应了，如果在链接成库时选择了这个选项，那么在链接进内存就可以
+放在内存的任意位置，只是在寻址时加上一个global的偏移即可。
+gcc -c -fpic libtest.c   -- 生成PIC的目标文件
+gcc -shared -o libtest.so libtest.o   -- 生成PIC的动态链接库。
+
+
+
+Stack Activation Record(Routine)
+具体系统具体实现不同，大致有局部变量，函数参数，指向前一个栈的指针，指向返回地址的指针。
+
+
+goto只能在function内部跳,用longjmp可以跨函数跳
+
+
+
+---------------------------------objdump基本使用---------------------------------
+1. objdump -f a.out    查看文件总的概括
+2. objdump -p 大概是a.out 的exec header的信息
+3. objdump -h 打印出a.out 的各个section的信息
+4. objdump -t 打印处symbol table

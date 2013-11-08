@@ -1,0 +1,27 @@
+--------------------  硬件---------------------------
+CPU: 外频(与周边沟通的速度)  倍频    RAM通常与CPU的外频相同
+显卡(video card or graphics card)， 又称显示适配器(video adapter) 数据接口分为两种： 
+1种是通过较慢的PCI(几乎淘汰)  1种是通过AGP 来传输数据  后者频率比前者快
+VGA(video graphics array)， 视频图形阵列， 视频传输标准。  本本连投影仪的插槽就是VGA的
+硬盘  IDE(ATA,PATA)  SATA(Serial ATA)
+PCI适配卡： 安插在PCI接口上面的功能卡， 主要有网卡，声卡以及SCSI适配卡等。
+SCSI适配卡： 可用作硬盘， 光驱等的传输接口， 稳定且快， 但是昂贵,一般用在服务器
+
+芯片组： 沟通CPU, RAM， 输出与输入设备。 在不同频率之间操作
+-->举例：CPU 993MHz, 外频为133, 内存即为133， PCI接口通常33(133/4), AGP66(133/2), 若是DDR内存， 还能提升4倍,
+         芯片组即在这些频率之间工作。
+如果说CPU是主板的大脑，则芯片组是主板的神经。显卡插槽规格是由芯片组的北桥决定的，而扩展槽的种类和数量，扩展接口的类型和数量，(如USB2.0，VGA等等）由南桥决定。
+
+CPU、内存与芯片组(就是主板啦)在选购的时候需要一起考虑， 通常芯片组支持的CPU和内存规格只有一种
+I/O地址与IRQ: I/O地址类似外设的门牌号， 而IRQ(interrupt request)则是邮件中心到门牌号的通路。 IRQ数量有限
+主板提供BIOS来设置输入输出， I/O, IRQ等等(百度百科有IRQ的通用表)
+
+主板一般拥有两个IDE接口， 分别可连接两条IDE数据线。 而每条IDE数据线上又有两个IDE接口，可分别连接两个IDE设备，
+即Master(主盘)和Slave(从盘)， 主盘是系统启动首先读取并引导的盘， 因此装有操作系统的硬盘， 应设置成主盘。
+在Linux下IDE1下主盘与从盘分别为/dev/hda  /dev/hdb， IDE2下主盘与从盘分别为/dev/hdc /dev/hdd
+
+硬盘里分为两个区域：  MBR和实际数据区域
+MBR由开机引导程序和partition table(下面简称pt)组成, pt记录每个分区的起始扇区和终止扇区, 但是MBR在设计时由于容量有限
+只能有4个分割记录，这些记录就被称作primary和extended。 因此分割磁盘最多能分成P+P+P+P或者P+P+P+E
+硬盘的空间图： MBR--Primary1---Primary2---Logical1---Logical2---Logical3      (Linux为Primary保存序号1-4,Logical从5开始)
+                  /dev/hda1---/dev/hda2---/dev/hda5---/dev/hda6---/devhda7

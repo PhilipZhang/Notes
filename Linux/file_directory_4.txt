@@ -1,0 +1,51 @@
+cd
+pwd
+mkdir
+rmdir(只能删除空目录)
+
+echo $PATH 可以打印环境变量
+PATH="$PATH" :/root 添加root目录到环境变量
+
+
+档案和目录操作:
+ll 显示目录下档案 详细信息
+cp (-r 拷贝整个目录  -s 建立链接档  -u 先检查两个文件是否相同 如果相同则不拷贝，否则拷贝)
+rm 删除一个文件或者目录， 若目录不为空， 则需要 -rf
+mv 移动文件,或重命名文件
+basename 显示一个档案或目录的最后一个东东
+dirname 与basename恰好相反 取出是前面的路径
+
+观看档案内容:
+1. cat: 顺序观看文件  -n 显示行号  -A 将DOS下的断行符和TAB都显示出来
+2. tac: 逆序观看文件
+3. more 一行行显示
+4. less 比more更有弹性,可以向前翻页.  /word 可以搜索关键字
+5. head 显示前几行  -n 规定显示几行
+6. tail	显示后几行  与head结合可以查看第N到M行的内容
+7. nl 显示行号
+8. od 查看2进制文件， 基于数字
+
+档案与目录权限:
+chown
+chgrp
+chmod
+umask 用来设置用户创建档案时默认权限。 若创建的是文件，则最大值为666, 若是目录
+      则最大值为777。 umask设置的是对owner,group,others三个组的最大值应该减去
+      多少。
+chattr, lsattr  改变和显示系统文件的隐藏属性。
+
+搜寻档案或目录:
+which 查看可执行档的位置
+whereis 查看档案位置(配合数据库)
+	-b 只找binary档案 -m只找在说明文件manual路径下的档案 -s 只找source文件
+locate 查看档案位置(配合数据库)
+档案数据库的目录: /var/lib/mlocate/mlocate.db 
+更新数据库的执行档: /usr/bin/updatedb  其配置文件为: /etc/updatedb.conf 
+find 通过硬盘查找档案，可选的参数多，但是慢
+
+SUID: 当档案执行期间，拥有该档案拥有者的权限
+SGID: 当档案执行期间，拥有该档案所属群组的权限
+Sticky bit: 该目录下的档案或目录，只有档案拥有者及root才能删除 
+设定方法： 在以前3个数字表示权限的基础上，前面再加入一位数字
+4为SUID(查看属性时为s,若拥有者无执行权则为S)  2为SGID  1为Sticky bit
+file: 查看档案类型,编码等属性

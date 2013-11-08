@@ -1,0 +1,53 @@
+1. 关于投影
+透视投影默认观察者在(0,0,0), 正交投影默认观察者在z轴正方向无穷远处。
+
+2. model transform and view transform
+在做model transform之前，必须先做view transform, 相当于先把照相机的
+位置摆好，再在这个观察坐标系里摆放物体一样。
+物体在做model transform时，不能交换变换的顺序，这个可以用矩阵乘法
+不可交换来解释。
+
+3. opengl里的矩阵内部表示是列优先的一维数组。
+假设变换矩阵为
+Xx Yx Zx Tx
+Xy Yy Zy Ty
+Xz Yz Zz Tz
+0  0  0  1
+则前三列前三个数字分别表示变换坐标系的x,y,z轴的方向， 最后一列表示平移量。
+
+4. 一些实用的类：
+GLFrame  --  表示移动的物体和照相机的坐标系， 暴露一些MoveForward之类的接口，
+使得其便于操作。  最后再暴露一个getMatrix， 记住照相机的和物体的getMatrix实现不同。
+
+GLBatch  --  点批
+GLTriangleBatch  --  三角形批， 用索引来管理大量的三角形，优化其存储空间。
+
+GLMatrixStack  --  矩阵栈，用来方便的管理变换矩阵， 栈顶是活动矩阵，即当前
+的变换矩阵，提供push和pop接口， 同时提供一些常见的矩阵变换接口，使得矩阵变换
+直接作用在活动矩阵身上，所以需要存储的状态一定要push。
+
+GLTransfromPipeline  -- 绑定modelview的stack和projection的stack， 暴露set和get
+接口。
+
+GLFrustum -- 方便管理投影， 封装正交投影和透视投影
+
+GLMath3D  --  定义一些常用的类型， 如矩阵， 向量等。 并且提供围绕它们的操作。
+
+GLStopWatch  -- 提供timer，暴露reset和getEllipsedTime接口
+
+GLShaderManager  --  管理shader， 负责shader的编译， 调用等。
+
+5. 3D环境变换的一般流程：
+push identity(或者固定相机的矩阵)
+    apply camera transform
+	draw fixed-position stuff
+	push camera matrix
+		apply actor transform
+		draw actor geometry
+	pop camera matrix
+pop identity
+
+后来的变换=右乘这个矩阵=将之前坐标系的点变换到当前坐标系 V1 * W2 * W3 * pt就得到最终在观察坐标系里的点的坐标
+记住对于投影变换，z值为负数的点才是在观察者能观察到的点，z值为整数表示behind the 观察者。
+
+6. 记住light的位置是需要自己手工去变换的。shader不会自动变换light的位置。

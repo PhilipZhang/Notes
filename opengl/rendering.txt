@@ -1,0 +1,44 @@
+1.坐标系
+OPENGL默认的坐标系是笛卡而坐标系，x,y,z的变化范围都为-1.0~1.0，并且投影平面是固定地投影
+到-1~+1的二维平面，所以在设置viewport的时候要格外注意，因为底层的坐标是一定的，所以为了
+让图形不因为窗口大小的变化而发生畸变，就需要在投影前根据视口大小计算投影区域的长宽比例。
+
+2.OPENGL提供了7种不同的图元，可以基于这些图元创建丰富的物体。
+GL_POINTS
+GL_LINES
+GL_LINE_STRIP
+GL_LINE_LOOP
+GL_TRIANGLES
+GL_TRIANGLE_STRIP
+GL_TRIANGLE_FAN
+
+深度测试  glEnable(GL_DEPTH_TEST)
+反面剔除  glEnable(GL_CULL_FACE)
+
+通过glPolygonMode(GL_FRONT_AND_BACK, GL_POINT)可以将多边形用点绘制
+GL_LINE表示绘制线框图  GL_FILL表示绘制填充多边形内部。
+
+3. z-fighting
+当两个物体的z-buffer相同或者非常相近时，可能会产生冲突，即z-fighting，
+比如一个物体需要贴在另一个物体上面，这会使得DEPTH_TEST fail掉
+可以使用glPolygonOffset(GLfloat factor, GLfloat units)来仅仅变化其
+z-buffer而不改变物理坐标，factor为负数表示靠近观察点。 使用这个函数
+后需要glEnable(GL_POLYGON_OFFSET_?) ?处可以为LINE,POINT,FILL
+
+4. scissor test
+OPENGL允许你设定一个scissor rectangle within your window，这样opengl在
+重绘的时候就只需要绘制这个区域就行了。
+glEnable(GL_SCISSOR_TEST);
+void glScissor(GLint x, GLint y, GLsizei width, GLsizei height);
+
+5. blending
+glEnable(GL_BLEND);
+Cf = (Cs * S) + (Cd * D)
+Cf为计算出的颜色， Cs,Cd为源颜色和目标颜色，S和D为源融合系数和目的融合系数
+glBlendFunc(GLenum S, GLenum D); // OPENGL提供了很多种系数的枚举值
+注意 透明只是融合的一种应用而已，融合还可以有其他应用
+glBlendEquation(GLenum mode); 可以改变融合方程
+GL_FUNC_ADD
+GL_FUNC_SUBTRACT
+GL_FUNC_REVERSE_SUBTRACT
+GL_MIN  GL_MAX   注意， 这个取大取小是四个通道分别区大小。

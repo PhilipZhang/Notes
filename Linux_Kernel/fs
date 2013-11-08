@@ -1,0 +1,87 @@
+<Directory>
+ext2 directory is special files, which also have an inode, but its content in data blocks is the inodes of its entires
+</Directory>
+<Change size of file>
+EXT2 will tries to allocate new blocks of the file close enough to its allocated blocks, at least in the same block group
+unless there is no space.
+Every time a process wants to allocate new blocks, the ext2 will lock the superblock and change fields within it. Other process wanting to 
+allocate or deallocate the blocks will be suspended. After the process has been allocated new blocks and written fields to superblock,
+the superblock will be marked as "dirty", and the first process in the suspended queue will be served.
+The blocks of file will usually be preallocated for furture use in case not to find free blocks too frequently.
+</Change size of file>
+
+<VFS>
+Virtual File System is a layer between os and specific fs, it should manage different file systems that are mounted.
+As each file system is initialized, it registers itself with the VFS. The real file systems are either built into the
+kernel or are built as loadable modules. The file system modules are loaded when system needs them(mounted).
+
+Much like the EXT2, VFS has its own VFS inodes and VFS superblock, so when a real file system is mounted, VFS needs
+to read its superblock(get topology, and map it onto a VFS superblock data structure).
+
+inode cache, directory cache maintained by the VFS
+buffer cache(block cache), shared among multiple real fs
+
+<VFS superblock>
+structure: Device(/dev/sda1)/Inode pointers(first inode)/blocksize/superblock operations(A pointer to routines for the file system, read, write..)/
+			/file system type/file system specific information
+</VFS superblock>
+
+<VFS inode>
+The information in VFS node is got by specific fs routines. VFS inodes only exist in the kernel's memory and VFS inode cache, not on block device.
+structure: device/inode number(this is the specific fs's inode number, device+inode number is unique within VFS)/mode(access right)/user id/times/
+			block size/inode operations/count/lock/dirty(whether modified, if so, wirte back to the fs's inode)
+</VFS inode>
+
+<Register fs>
+structure: superblock read routine(needed when being mounted)/file system name/device needed(/proc requires no block device)
+VFS will generate a data type file_system_type when a specific file system is registered(ext2,ext3,nfs..), there is a 
+routine called read_super() and a field called name("ext2","ext3"..)
+cat /proc/filesystems  -->  a list of registered file system name, which means the VFS knows how to read the specific file system's superblock and generate
+							corresponding VFS superblock in memory.
+</Register fs>
+
+<Mount fs>
+mount -t iso9660 -o ro /dev/cdrom /mnt/cdrom
+the command mount will pass 3 information to the kernel: fs name, device name and mount point
+when a fs is mounted, it will come to a vfsmount structure:  /mnt_dev(0x0301)/mnt_devname(/dev/hda1)/mnt_dirname('/')/mnt_flags/mnt_sb(vfs superblock)/../next(link list)
+The root inode of the file system is in the inode cache all the time the file system is loaded
+</Mount fs>
+
+<Find a file>
+directory cache(caches inodes of the directory) --> inode cache --> get inode from underlying fs
+</Find a file>
+
+<Unmount>
+1. check whether there are inodes in inode cache. 
+2. check whether superblock is "dirty".
+3. free the vfsmount data structure.
+</Unmount>
+
+<VFS inode cache>
+(device,inode number --> inode contents in memory)
+Use a hash table to cache inodes. key is the (device,inode number), and there may be several inodes whose hash values are the same, then it will iterativelly check whether
+there is one equal to (device, inode number). When it's found, the content of the inode will be returned and minus one access to physical media.
+Each fs has cache limit, when it reaches limit, unfrequently used inode should be moved out.
+When the requested inode can't be found in cache, then a file system specific routine should be called to fill the VFS inode from the underlying fs. When it is being
+filled, the usage count is 1 and it's locked until it contains valid information.
+</VFS inode cache>
+
+<Directory cache>
+(directory path --> inode content)
+like vfs inode cache, also hash table.
+also have cache limit and use LRU(least recently used) algorithm to move the entry out.
+</Directory cache>
+
+<Buffer Cache>
+Two functions: 1. free block list  2. used block cache
+buffer type: clean, locked, dirty, shared, unshared.
+bdflush Kernel Daemon: responsible for writing dirty blocks back to block device when the fraction of dirty blocks are too large. (process kflushd)
+update process.
+</Buffer Cache>
+
+</VFS>
+
+<proc fs>
+/proc file system's files and directories don't acually exist, when the VFS makes calls to request its files and directories, the /proc fs create those
+files and directories from information within the kernel.
+</proc fs>

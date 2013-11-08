@@ -1,0 +1,20 @@
+
+动态链接的优点:
+1.生成的执行文件小。
+2.动态库可以方便的进行版本更新而调用程序不用重新链接。
+3.动态库可以被多个进程共享而不用重复被拉入内存。
+
+.so(shared object) 表示每一个链接到该库的程序共享一个copy
+ld(linker editor)
+
+.a(archive) 
+ar(archive-utility)
+
+PIC -- position independent code用来在链接动态库时用偏移量而不是绝对地址来定位全局变量和函数地址，而不需要
+重新修正。
+
+5点tips of linking with libraries(UNIX):
+1. 命名规范： 动态库叫做lib[name].so, 静态库叫做lib[name].a, 静态共享库叫作lib[name].sa
+2. -l[name]表示链接某库
+3. /etc/ld.so.conf文件包含了ld在寻找库文件的默认路径
+4. 把-l放在命令的最左边。

@@ -1,0 +1,31 @@
+1. 背景工作管理
+(1) command &:  将工作丢到背景去执行，所以输出不会显示在屏幕，注意配合管线命令。
+(2) [ctrl]+z:  将当前工作丢到背景去，并且暂停， 配合fg(唤回前台)与bg一起使用
+(3) fg %n 与bg %n: bg将背景中stop的命令变为running   而fg是将背景内的内容移到前台执行
+(4) jobs: 查看背景中的工作
+(5) ps, top, pstree  查询进程情况
+ps常用的参数  ps -aux|  ps -lA | ps axjf  
+(6) kill  杀掉前台或者后台的进程  若为前台  直接接 -9 PID  后台  -9 %number
+(7) uname -a  系统信息
+想要查看更详细的cpu 或mem等的信息  可以 more /proc/cpuinfo  或者  more /proc/meminfo
+
+2. 程序优先级
+PRI， NI
+PRI(NEW) = PRI(OLD) + NI
+一般使用者可用NICE值 0-19
+root管理员可以用 0-20
+PRI越小越先被执行
+一些非重要程序如备份工作，可以将nice值调大来让系统分配更公平
+nice    命令一开是就赋予一个nice值
+renice  降低已有进程优先级
+
+3. 讯息管理
+dmesg : 开机讯息
+uptime : 统计开机以来的一些信息
+who, w : 目前系统上的用户
+last: 记录一个月内的登入情况
+date: 看日期和改变日期
+hostname: 查看主机名
+ntpdate : 网络校时
+
+
