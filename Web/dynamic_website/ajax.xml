@@ -1,0 +1,70 @@
+<examples>
+	google instant search
+	facebook instant chat
+	stock update
+</examples>
+
+<process>
+	1. JS call
+	2. XMLHttpRequest object
+	3. HTTP Request with data
+	4. Web Server process
+	5. Return Data
+	6. JS transfer Data into HTML elements(or css) and dynamically change the content of HTML
+
+	NOTE: json is more popular than XML being the data format nowadays
+</process>
+
+<XMLHttpRequest>
+	<State>
+		0. unitialized
+		1. open
+		2. send
+		3. receiving
+		4. loaded(most concerned)
+	</State>
+	<Response>
+		responseXML  (XML format): Using xml will jump too many levels.
+		responseText (usually json) simple, the most popular for ajax data transfer.
+		responseBody (HTML)
+	</Response>
+	<Status>
+		200
+		404
+		...
+	</Status>
+	
+	<onreadystatechange>
+		--event: onreadystatechange
+		we should implement the event reaction function : handler()
+		this handler() function should be called when state is updated.
+		when readState is 4 and status is 200, we can trust the feedback data from
+		server and use this data to update elements with js.
+	</onreadystatechange>
+</XMLHttpRequest>
+
+<jquery>
+	seperate js code from html code, make it clean.
+
+	$(element)   --   jQuery.element -> a jQuery object contains the element
+
+	$(document).ready(function() {});   // since js manipulates html elements, so it should wait until HTML is loaded complelely
+
+	$.ajax(url: "...",  // server url
+		   data: {},  // send data 
+		   success, function(data){...});  // if readyState==4 and status==2, call function(data), data is the returned data from server(json, html or xml)
+	NOTE: ajax can contain much more key-value pairs for specific use.
+
+	$('#form').submit(function(){..ajax.. return false}); // the submit function can bind the function() to the onsubmit event handler, so function() will be called when the form is submit. Within
+	the function we can call ajax, and return false(so the submit will not call server).
+</jquery>
+
+<MIME>
+	Content-Type can be text/html,  text/json,  and  text/xml
+	Content-Type is used for browser to identify the data representation.
+</MIME>
+
+<cross_domain_fetch>
+NOTE: js can not get content from server whose domain is different from the server of current page.
+cors/yql/jsonp
+</cross_domain_fetch>

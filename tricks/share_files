@@ -1,0 +1,3 @@
+share files between linux and windows: smbfs(both linux or windows can act as server), or through vm(device->share folders, then map drive in windows or mount in linux), if it is through
+										vm, then map name will include the vm name
+share files between linux and linux: nfs, smbfs

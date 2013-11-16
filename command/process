@@ -1,0 +1,16 @@
+& 			// 放到本shell的后台，但是shell结束以后不会继续存在，所以不是真正意义上的背景执行
+jobs 		// 显示本shell的后台进程
+CTRL+Z 		// 将本进程放到后台(如从VI里)
+fg 			// 将后台第一个进程拉回前台
+fg %num 	// 将后台编号为num的进程拉回前台
+bg %num 	// 让后台pause的程序在后台running
+kill %num 	// 将后台某个进程杀死
+
+nohup some.sh &  // 放到系统后台执行，就算shell exit了，它也在继续执行
+
+ps aux 		// 显示所有进程
+ps axjf 	// 父子关系 	
+ps -l     	// 本shell下的进程
+
+pstree -A 	// 进程树状关系
+pstree -Aup // 显示PID和所属用户

@@ -1,0 +1,98 @@
+<database_types>
+1. csv(comma for column seperation),psv(verticle bar),tsv(tab)
+fgetcsv()    array of array, big array is rows, and small array is column
+
+2. xml, dom
+
+3. mysql
+a service listening on a port
+
+4. sqlite
+</database_types>
+
+<mysql>
+mysql stores its user information in table mysql.user
+
+mysqld is a daemon listening on port xxx for client requests, and then can process them.
+phpmyadmin is a php-based software tool that provides web-interface for mysql users
+to manage their database(much more convinient than command line env provided by mysql).
+
+database engine: like filesystems on windows(ntfs,fat16,fat32), the database also have multiple
+ways to store its data, so different database engines have different storing strategies.
+
+Better not to let database server do encryption but let the web server(php..) do it for you.
+Because by doing this you can live a better life when changing database server.
+
+Better to use id(or fixed length number) to act as unique instead of string 
+for it is only 32 or 64 bits..
+difference between primary and unique?
+
+Better to store images or large files on disk instead of on db for scalability.
+
+temporary table vs persistent table
+Seperate several tables to avoid redundancy. When the data should be together,
+can join them into a temporary table.
+
+one-mutiple relationship should be three 3 tables.
+one-one can relationship have only two tables
+</mysql>
+
+<login_by_db>
+1. select where username=...,   then check the input (username,password) pair matches the db
+2. select 1 where username=... and password=..., it will return 1x1 if found, or NULL if not
+found, it saves the space and transmission traffic between db server and web server
+3. use PASSWD() function to encrypt the password filed, and the db server should also store the
+encrypted password instead of plain text. If someone steals the db without knowing the encryption
+function, they can do nothing.
+</login_by_db>
+
+<mysql_types>
+char/varchar:  varchar is saving space, but char better performance
+text:   large strings(up ot mbs), resumes for example. 
+		Usually the table data is stored contiguously on disk, ram or cache, but for large things, 
+		they will be stored as pointer to somewhere else. So it will bring performance downside.
+		But the pattern matching or search string in a text field will be more powerful.
+date:   The db provides date type, then there will be functions associated to it, for example, you
+		can get different representations of date from db, and it's also efficiently organized by db
+		than you just use string.
+</mysql_types>
+
+<pdo>
+Portable Database Object.
+</pdo>
+
+<index_type>
+primary: primary key indicates that one key can only identify one row.
+index: boost query efficiency based on that key(using index tech).(for one to multiple scenario)
+</index_type>
+
+<join>
+implicit join: select .. from .. where employee.employee_id=order.employee_id
+explicit join: select .. from employee join order on ..
+left join, right join: give different weights to the 2 tables
+</join>
+
+<transactions>
+InnoDB example:
+START TRANSACTION;
+UPDATE account SET balance = balance - 1000 WHERE number=1;
+UPDATE account SET balance = balance + 1000 WHERE number=2;
+COMMIT;
+(ROLLBACK support)
+only lock the rows concerned..
+</transactions>
+
+<lock>
+MyISAM example:
+LOCK TABLES account WRITE;
+SELECT balance FROM account WHERE number = 2;
+UPDATE account SET balance = 1500 WHERE number = 2;
+UNLOCK TABLES;
+
+lock the whole table...
+</lock>
+
+<relation_view>
+construct relations between tables, can specify things when deleting and updating sharing attributes of tables
+restrict, casade.
+</relation_view>

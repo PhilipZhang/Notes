@@ -1,0 +1,75 @@
+<js>
+
+	<functions>
+		javascript functions can handle events of html elements, query and change the state of elements, either from global document object of the html file or from the reference the elements pass to the functions.
+		example: button   onclick='validate()'     in validate(): document.forms.test_form.password.value=...
+		example: form  onsubmit="return validate(this)  in validate(f):  f.password.value=...
+	</functions>
+
+	<JS_DOM>
+		JS can change HTML elements, change attributes, change CSS styles, and react to the events in the page.
+	</JS_DOM>
+
+	<JS_BOM>
+		JS can manipulate browser-based information, such as storing and getting cookies, get history urls, window size and so on.
+		NOTE: cookies can be set by both client and server function.
+	</JS_BOM>
+
+	<anonymous_function>
+		1.
+		var annoy = function() { alert("HI") };   // function variable
+		window.setInterval(annoy, 5000);
+		2.
+		window.setInterval(function() { alert("HI"); } , 5000);  // anonymous function
+		parameter one is the address of function
+		3.
+		(function() {
+			alert("hi");
+			})();
+	</anonymous_function>
+	
+	<Data_Types>
+		NOTE: JS has dynamic data types, so a variable can change type from one to another.
+		Array
+		Boolean
+		Date 
+		Function
+		Math
+		Number
+		Object
+		RegExp
+		String
+	</Data_Types>
+
+
+	<objects>
+		JUST key,value pairs and methods in one object.
+		var obj = {};
+		obj.key = value;
+		obj['key'] = value;
+		var obj = { key : value };
+	</objects>
+
+	<event_handlers>
+		onblur(when leaving focus), onchange, onclick, onfocus...
+		elements of different types have different event handlers.
+	</event_handlers>
+
+	<JS_lib>
+		bootstrap
+		jquery
+		EXT js
+		YUI
+	</JS_Lib>
+
+	<tools>
+		Static code analysis:  check for errors on static js code.  jslint
+		Compressors: JSMin, packer
+	</tools>
+</js>
+
+<client_side_validation>
+	Server validation should still exist when using javascipt, because client side can easily
+	change the things in browser or even send fake request from the terminal with unvalidated
+	fields.
+<client_side_validation>
