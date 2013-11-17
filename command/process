@@ -14,3 +14,14 @@ ps -l     	// 本shell下的进程
 
 pstree -A 	// 进程树状关系
 pstree -Aup // 显示PID和所属用户
+
+
+/proc/num 	// PID为num的进程的 内存中的相关信息
+/proc 		// 内存中的系统相关信息
+
+fuser -uv   // 察看某个文件被什么程序所使用
+
+lsof | grep 'bash'  // 找出bash程序用了什么文件
+lsof +d /proc 		// 察看/proc文件夹下什么文件被什么程序所打开
+
+pidof  		// 找出某个程序的PID
